@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "FileTools": {
+      "commandName": "Project",
+      "commandLineArgs": "/wait /recurse /action:FindFiles /input:C:\\Files\\Dropbox\\Develop\\Active \"/properties:[{'Name':'Find','Value': '(?i:^[^\\\\.]*svg[^\\\\.]*\\\\..*)'}]\""
+    }
+  }
+}

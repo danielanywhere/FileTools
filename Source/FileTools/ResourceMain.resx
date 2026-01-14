@@ -1,0 +1,428 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="rxDateMDY" xml:space="preserve">
+    <value>^\s*(?&lt;month&gt;\d+)\s*/\s*(?&lt;day&gt;\d+)(\s*/\s*(?&lt;year&gt;\d+)(\s+(?&lt;hour&gt;\d+)\s*\:\s*(?&lt;minute&gt;\d+)(\s*\:\s*(?&lt;second&gt;\d+)(\s*\.\s*(?&lt;millisecond&gt;\d+)){0,1}){0,1}){0,1}){0,1}\s*$</value>
+    <comment>Regular expression to extract the parts of a date expressed as MM/DD/YYYY HH:MM:SS.MMM.</comment>
+  </data>
+  <data name="rxDateYYYYMMDD" xml:space="preserve">
+    <value>^\s*(?&lt;year&gt;\d{4})(?&lt;month&gt;\d{2})(?&lt;day&gt;\d{2})(\.(?&lt;hour&gt;\d{2})(?&lt;minute&gt;\d{2})((?&lt;second&gt;\d{2})((?&lt;millisecond&gt;\d{3})){0,1}){0,1}){0,1}\s*$</value>
+    <comment>Regular expression to extract the parts of a date expressed as YYYYMMDD.HHMMSSMMM.</comment>
+  </data>
+  <data name="rxEmbeddedFieldName" xml:space="preserve">
+    <value>(?&lt;field&gt;\{(?&lt;name&gt;[^\}]+)\})</value>
+    <comment>Regular expression to extract embedded field names from the general text.</comment>
+  </data>
+  <data name="rxJsonErrorLinePosition" xml:space="preserve">
+    <value>(?i:(?s:line\s+(?&lt;line&gt;\d+).*?position\s+(?&lt;position&gt;\d+)))</value>
+    <comment>Regular expression to extract the line and position from a Newtonsoft Json parser error message.</comment>
+  </data>
+  <data name="rxNumericalFloat" xml:space="preserve">
+    <value>(?&lt;value&gt;-{0,1}\d+(\.\d+){0,1})</value>
+    <comment>Regular expression pattern for finding floating point numerical values.</comment>
+  </data>
+  <data name="rxNumericalInt" xml:space="preserve">
+    <value>(?&lt;value&gt;-{0,1}\d+)</value>
+    <comment>Regular expression pattern for finding integer numeric values.</comment>
+  </data>
+  <data name="rxNumericalSeed" xml:space="preserve">
+    <value>^(?&lt;pre&gt;.*?)(?&lt;seed&gt;\d+)(?&lt;post&gt;.*)$</value>
+    <comment>Regular expression to separate the numerical seed in the string and to return all of the parts of the string.</comment>
+  </data>
+  <data name="Syntax" xml:space="preserve">
+    <value>Command-line tool suite for working with files.
+
+Syntax:
+FileTools.exe /action:{ActionName}
+    [/configfile:{Filename}]
+    [/input:{Filename|FolderName}]
+    [/output:{Filename|FolderName}]
+    [/pattern:{Pattern}]
+    [/infolder:{FolderName}] [/outfolder:{FolderName}]
+    [/infile:{Filename}] [/outfile:{Filename}]
+    [/option:{OptionName[,OptionValue]}]
+    [/range:{Start},{End}] [/base:{Base}]
+    [/digits:{Digits}] [/count:{Count}] [/datetime:{DateTime}]
+    [/text:{Text}]
+    [/prefix] [/suffix]
+    [/properties:{NameValueArray}]
+    [/workingpath:{FolderName}]
+    [/recurse]
+    [/wait]
+    [/?]
+
+ * -    Actions marked with an asterisk are only supported within a
+        configuration file.
+
+    /action     -   Describes the action to be made. Following are the
+                    recognized actions, with associated parameter names.
+                    Starred names ('*') are only available in a batch.
+                    Batch - Perform a batch of file operations from a
+                        single JSON configuration file.
+                        /infile
+                    BuildPathProperty * - Build an absolute path in a user
+                        property from a partial path template.
+                    ClearInputFiles * - Clear the input files collection at
+                        this level.
+                    ConvertFromB64 - Convert a file from base-64 to binary.
+                        /infile, /outfile
+                    ConvertToB64 - Convert a file from binary to base-64.
+                        Available options: DataUrl,{true|false}
+                        /infile, /outfile
+                    CopyFirstNumeric - Copy the first numeric file in the
+                        source folder to the target.
+                        /input, /output
+                    CopyIncrementReverse - Copy a range of files in the source
+                        folder to a higher increment, in reverse order.
+                        /infolder, /range, /outfolder, /base
+                    CopyLastNumeric - Copy the last numbered file in the
+                        source folder to the target.
+                        /infolder, /output
+                    CopyLastNumericExtend - Copy the last numbered file in the
+                        source folder to an extended number of frames.
+                        /infolder, /outfolder, /base
+                    CopyMergeSubs - Copy all files from subfolders to the
+                        output folder, using merged sequential naming.
+                        /infolder, /outfolder, /base
+                    CopyNumericToRange - Copy the specfied numeric frame to the
+                        specified range.
+                        /infile, /outfolder, /range, [/digits]
+                    CopyRange - Copy a range of files in the source folder to
+                        a new destination.
+                        /infolder, /range, [/outfolder], [/base], [/digits]
+                    CropImage * - Crop the working image to the provided Left,
+                        Top, Width, and Height values.
+                    CropImageToRectangleInfoName * - Crop the working image to
+                        the rectangle specified in the item of the rectangle
+                        list corresponding to the provided Name user property.
+                    DateCopy - Copy files or folders from one location to
+                        another, adding a date prefix or suffix to each file
+                        at the destination location.
+                        /input, [/prefix | /suffix], /outfolder
+                    DelDirectoryPattern - Delete every directory matching the
+                        specified pattern in the input folder.
+                        /infolder
+                    DeleteFile - Delete the file specified in the Filename
+                        user property if it exists.
+                    DelEveryX - Delete every Xth file in the selected files
+                        list.
+                        /input, /count
+                    DirReformat - Reformat the results of a DIR output
+                        file to CSV.
+                        /infile, /outfile
+                    DirToTsv - Scan a directory and save the findings as a
+                        tab-separated values (TSV) file.
+                        /infolder, /outfile
+                    DrawImage * - Draw the image specified by ImageName onto
+                        the working image at the location specified by user
+                        properties Left and Top.
+                    FileOpenImage * - Open the image file specified in the
+                        current input file. Name it in the local images
+                        collection with the name specified in the user
+                        property ImageName.
+                    FileOverlayImage * - Open each image from the range and
+                        place the image specified in InputFilename at the
+                        options specified by Left, Top, Width, and Height.
+                        {/infolder, /range|/input}
+                    FileSaveImage * - Save the working image to the currently
+                        specified OutputFile.
+                    FindFiles - Find the files matching the provided pattern.
+                        Properties: 'Find'
+                        /input /recurse
+                    ForEachFile * - Run the Actions collection of the action
+                        through all of the files currently loaded in the
+                        InputFiles collection, setting the CurrentFile
+                        property for each pass.
+                    FormatDirFile - Format the text output of a DOS style
+                        command-line DIR /s command to create a tab-separated
+                        values (TSV) file.
+                        /infile, /outfile
+                    ImagesClear * - Clear all images from the Images
+                        collection.
+                    ImageSetCommonBoundary - Create common bounding boxes for
+                        the image sets specified. If text is specified, it is
+                        used as the name of the output structure.
+                        Available options are Square and Grow,{Amount}
+                        /input, [/text], [/option]
+                    ListAllFilesOnDate - List all files created or modified
+                        within the specified date range.
+                        /infolder, /range
+                    LoadRectangleInfoList * - Load the Rectangle info list
+                        from an external JSON file.
+                    MoveFiles - Move the specified files from one folder to
+                        another.
+                        /input, /outfolder
+                    PrefixFilenames - Prefix matching filenames with a
+                        text pattern.
+                        /input, /text
+                    RenameFiles - Rename matching files with regular
+                        expression find and replace.
+                        Properties: 'Find', 'Replace'
+                        /input, /output, /recurse
+                    RenumberFiles - Renumber all of the matching files to be
+                        contiguous.
+                        /infolder, [/outfolder], [/range], [/base], [/digits]
+                    RepeatInsertClip - Repeat a group of one or more files
+                        sequentially. If base is omitted, the starting target
+                        is the next number after the end of the source clip.
+                        /infolder, [/outfolder], /range, [/base]
+                    ReplaceGreenscreen - Remove background from one or more
+                        image files, placing the results in a separate
+                        folder. Uses Microsoft Cognitive Services and requires
+                        the properties MSCognitiveServicesKey and
+                        MSCognitiveServicesEndpoint.
+                        /input, /outfolder
+                    RunSequence * - Run the sequence specified in the
+                        'SequenceName' user property.
+                    SetFileDate - Set the file date and time (TOUCH) on the
+                        specified files.
+                        /input, /datetime
+                    SetWorkingImage * - Set the current working image to the
+                        one with the local name found in the user property
+                        ImageName.
+                    SizeImage * - Scale the image to a new size, as specified
+                        in user properties Width and Height.
+                    StitchFilePatternToMp4 - Stitch files found in the
+                        FilePattern property to the output filename using
+                        FFMPEG.
+                    SuffixFilenames - Suffix matching filenames with a
+                        text pattern.
+                        /input, /text
+    /base       -   The base number or filename pattern of the source or
+                    target files, depending upon the current action.
+    /count      -   Count of interations to take on the current action.
+    /datetime   -   The date and time to apply to the action.
+    /digits     -   Count of digits to output.
+    /infile     -   Input path and filename only.
+    /infolder   -   Input path and folder name only.
+    /input      -   An input pattern that allows for filenames or foldernames
+                    with or without wildcards. This parameter can be specified
+                    multiple times on the command line with different values
+                    to load multiple input files.
+                    Since input is the most generic type of specification, if
+                    an input parameter is allowed on an action, the infile or
+                    infolder parameters can be specified once in its place if
+                    the input parameter itself is left blank.
+    /option     -   Specifies a single option name and optional matching
+                        value. Multiple options can be specified per command.
+                        Options are specific to the action context in which
+                        they are specified.
+    /outfile    -   Output path and filename only.
+    /outfolder  -   Output path and folder name only.
+    /output     -   An output pattern that allows for filenames or foldernames
+                    with or without wildcards. This parameter can be specified
+                    muliple times on the command line with different values
+                    to write to multiple output files.
+    /pattern    -   Match the supplied regular expression pattern for files,
+                    folders, or other appropriate strings.
+    /prefix     -   A flag indicating that the prefix function is active
+                    for the current action.
+    /range      -   A range of values in the format suitable for the context
+                    of the action. This parameter will most likely be
+                    composed of two numbers, dates, or strings.
+    /recurse    -   When specified, the action will recurse inward to all
+                    subdirectories from the current working folder.
+                    This flag is currently only recognized for the RenameFiles
+                    action.
+    /suffix     -   A flag indicating that the suffix function is active
+                    for the current action.
+    /working    -   Set the working path and foldername. When this parameter
+                    is specified, all of the other parameters can use relative
+                    naming.
+
+{ActionName}    -   Name of the action to execute.
+{Base}          -   The base number to use, typically as a target value.
+{DateTime}      -   Date and / or Time, in one of the formats of
+                    MM/DD/YYYY[ HH:MM[:SS[ FFF]]] or YYYYMMDD[.HHMM[SS[FFF]]].
+{Digits}        -   Count of characters or digits.
+{End}           -   End pattern of a range.
+{Filename}      -   Fully qualified path and filename.
+{Foldername}    -   Fully qualified path.
+{OptionName}    -   Name of the option. Not case sensitive.
+{OptionValue}   -   Value to apply to the option. Some options do not require
+                        values.
+{Pattern}       -   File or folder regular expression match pattern.
+{Start}         -   Start pattern of a range.
+{Text}          -   A non-regex text pattern to apply.
+
+Options:
+Following are the available options.
+
+DataUrl         -   Indication of whether to create a Data URL from the
+                    current data.
+                    Value: {true|false}
+                    Commands: ConvertToB64
+Grow            -   Grow the image by the specified number of pixels.
+                    Value: Total number of pixels to grow.
+                    Commands: ImageSetCommonBoundary
+Mute            -   Don't run this action.
+                    Value: (none)
+                    Commands: (Any)
+SavePicture     -   Save a copy of the picture created by the process.
+                    Value: Filename of the picture.
+                    Commands: ImageSetCommonBoundary
+Solo            -   Run only this action within the context of the current
+                    parent batch.
+                    Value: (none)
+                    Commands: (Any)
+Square          -   Square the image.
+                    Value: (none)
+                    Commands: ImageSetCommonBoundary
+
+Example:
+FileTools /action:CopyNumericToRange /input:C:\Temp\455.png /
+    /range:5000,10000 /outfolder:C:\DestinationFolder
+
+The above example copies frame 455 from the C: Temp folder to a 5 digit
+sequence of files at C:\DestinationFolder ranging from 05000.png to
+10000.png. Since the digits parameter isn't specified, the maximum width
+of the target range is automatically selected.
+
+Batch config file variables.
+
+| Name | Type | Description |
+|------|------|-------------|
+| Action | ActionTypeEnum | The action to be made on the file. |
+| Actions | List&lt;ActionItem&gt; | Collection of actions to run as a part of this
+action. |
+| Base | string | The base number or filename pattern of the source or target
+files, depending upon the action. |
+| Count | float | The count associated with the current action. |
+| DateTimeValue | DateTime | the date and time associated with the current
+action. |
+| Digits | int | The number of digits associated with the current action. |
+| InputFilename | string | The path and filename of the input file. |
+| InputFolderName | string | The input path for the current operation. |
+| Options | List&lt;OptionItem&gt; | Collection of operational options. |
+| OutputFilename | string | The output path and filename for the operation. |
+| OutputFolderName | string | The output path for the operation. |
+| OutputName | string | Generic output path or filename. |
+| OutputType | RenderFileType | type of rendering to be done on the affected
+file. |
+| Pattern | string | Active regular expression pattern. |
+| Properties | List&lt;PropertyItem&gt; | Collection of properties for action. |
+| Range | StartEndItem | The start and end values of the range. |
+| Recurse | bool | Value indicating whether operations should recurse to sub-folders. |
+| RectangleInfoList | RectInfoCollection | Rectangle list. |
+| Sequences | List&lt;SequenceItem&gt; | Sequences for action. |
+| Text | string | Text for the current action. |
+| WorkingPath | string | Working path for current operation. |</value>
+    <comment>Command-line syntax.</comment>
+  </data>
+</root>
