@@ -8,13 +8,31 @@ The current version is Windows-only, due to its use of the **System.Drawing** na
 
 ## 🆕 LibreOffice Calc to Generic JSON
 
-The action ConvertCalcToJson has been added to convert a LibreOffice Calc ODS file to a general, flat JSON format. If all of the non-blank values in a column are numeric, the output property will be treated as numeric. Similarly, if all of the non-blank values in a column are boolean, the output property will be treated as boolean.
+The action **ConvertCalcToJson** has been added to convert a LibreOffice Calc ODS file to a general, flat JSON format. If all of the non-blank values in a column are numeric, the output property will be treated as numeric. Similarly, if all of the non-blank values in a column are boolean, the output property will be treated as boolean.
 
 <p>&nbsp;</p>
 
 ## 🆕 LibreOffice Calc Blender Timeline to Blender Keyframe JSON Script
 
 The action **ConvertCalcToBlenderKeyframes** has been added to convert a LibreOffice Calc ODS file using a Blender timeline animation layout to a Blender keyframe JSON file compatible with the ImportKeyframes.py script on the GitHub project [danielanywhere/BlenderAnimationImport](https://github.com/danielanywhere/BlenderAnimationImport).
+
+Following are the columns expected in a Blender Timeline Animation sheet. These can appear in any order.
+
+-   **Object**. Name of the object to update.
+-   **FrameIndex**. Absolute frame index at which the keyframe will be updated.
+-   **Action**. Specialized action to take. The currently recognized actions are: SetText, SetVisibility, SetVisibilityRender, SetVisibilityView, and FollowPath.
+-   **Value**. The specialized value associated with the current action.
+-   **RotateX**. Rotation around the X-axis.
+-   **RotateY**. Rotation around the Y-axis.
+-   **RotateZ**. Rotation around the Z-axis.
+-   **TranslateX**. Translation on the X-axis.
+-   **TranslateY**. Translation on the Y-axis.
+-   **TranslateZ**. Translation on the Z-axis.
+-   **ScaleX**. Scale on the X-axis.
+-   **ScaleY**. Scale on the Y-axis.
+-   **ScaleZ**. Scale on the Z-axis.
+-   **Comment**. Brief comment about the action.
+-   **FrameCount**. Count of frames on the target file. This value should only be specified once.
 
 <p>&nbsp;</p>
 
