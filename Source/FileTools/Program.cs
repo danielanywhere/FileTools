@@ -17,6 +17,7 @@
  */
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -65,6 +66,9 @@ namespace FileTools
 			NameValueCollection namevalues = null;
 			Program prg = new Program();  //	Initialized instance.
 			string[] values = null;
+
+			ConsoleTraceListener consoleListener = new ConsoleTraceListener();
+			Trace.Listeners.Add(consoleListener);
 
 			Console.WriteLine("FileTools.exe");
 
@@ -242,6 +246,11 @@ namespace FileTools
 				{
 					prg.ActionItem.Recurse = true;
 					continue;
+				}
+				key = "/sheetname:";
+				if(lowerArg.StartsWith(key))
+				{
+					prg.ActionItem.SheetName = arg.Substring(key.Length);
 				}
 				//key = "/suffix";
 				//if(lowerArg == key)

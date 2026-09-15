@@ -1586,8 +1586,77 @@ namespace FileTools
 		//*-----------------------------------------------------------------------*
 
 		//*-----------------------------------------------------------------------*
+		//* GetTable																															*
+		//*-----------------------------------------------------------------------*
+		/// <summary>
+		/// Return the specified table from the caller's data set.
+		/// </summary>
+		/// <param name="data">
+		/// Reference to the dataset to inspect.
+		/// </param>
+		/// <param name="tableName">
+		/// Name of the table to find.
+		/// </param>
+		/// <returns>
+		/// Reference to the specified table, if found. Otherwise, null.
+		/// </returns>
+		/// <remarks>
+		/// Table name is case-insensitive.
+		/// </remarks>
+		public static DataTable GetTable(DataSet data, string tableName)
+		{
+			DataTable result = null;
+
+			if(data?.Tables.Count > 0 && tableName?.Length > 0)
+			{
+				foreach(DataTable tableItem in data.Tables)
+				{
+					if(string.Equals(tableItem.TableName, tableName,
+						StringComparison.OrdinalIgnoreCase))
+					{
+						result = tableItem;
+						break;
+					}
+				}
+			}
+			return result;
+		}
+		//*-----------------------------------------------------------------------*
+
+		//*-----------------------------------------------------------------------*
 		//* GetValue																															*
 		//*-----------------------------------------------------------------------*
+		/// <summary>
+		/// Return a text value from the specified field in the provided row.
+		/// </summary>
+		/// <param name="row">
+		/// Reference to the data row to inspect.
+		/// </param>
+		/// <param name="fieldName">
+		/// Reference to the field name to check.
+		/// </param>
+		/// <returns>
+		/// Value in the specified cell, if found. Otherwise, an empty string.
+		/// </returns>
+		public static string GetValue(DataRow row, string fieldName)
+		{
+			string text = "";
+
+			if(row != null && fieldName?.Length > 0)
+			{
+				try
+				{
+					text = row.Field<string>(fieldName);
+				}
+				catch { }
+				if(text == null)
+				{
+					text = "";
+				}
+			}
+			return text;
+		}
+		//*- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*
 		/// <summary>
 		/// Return the string value of the specified property within the caller's
 		/// File Action.
@@ -2446,6 +2515,38 @@ namespace FileTools
 				else
 				{
 					result = source;
+				}
+			}
+			return result;
+		}
+		//*-----------------------------------------------------------------------*
+
+		//*-----------------------------------------------------------------------*
+		//* RowHasData																														*
+		//*-----------------------------------------------------------------------*
+		/// <summary>
+		/// Return a value indicating whether the specified row contains data.
+		/// </summary>
+		/// <param name="row">
+		/// Reference to the data row to inspect.
+		/// </param>
+		/// <returns>
+		/// True if the supplied data row contains non-null, non-empty data.
+		/// Otherwise, false.
+		/// </returns>
+		public static bool RowHasData(DataRow row)
+		{
+			bool result = false;
+
+			if(row != null)
+			{
+				foreach(object cellItem in row.ItemArray)
+				{
+					if(cellItem != null && cellItem.ToString().Length > 0)
+					{
+						result = true;
+						break;
+					}
 				}
 			}
 			return result;

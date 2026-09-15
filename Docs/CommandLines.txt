@@ -57,3 +57,7 @@ filetools /wait /action:RenameFiles "/properties:[{ 'Name': 'Find', 'Value': '(?
 filetools /wait /action:FormatDirFile /infile:C:\Temp\DirAll.txt /outfile:C:\Temp\DirAll-Formatted.txt
 
 filetools /wait /recurse /action:FindFiles /input:C:\Files\Dropbox\Develop\Active "/properties:[{'Name':'Find','Value': '(?i:^[^\\.]*svg[^\\.]*)'}]"
+
+filetools /wait /action:ConvertCalcToJson /sheetname:TestSheet /workingpath:C:\Files\Dropbox /infile:MySpreadsheet.ods /outfile:ConvertedFromCalc.json
+
+filetools /wait /action:ConvertCalcToBlenderKeyframes /sheetname:Timeline "/properties:[{ 'Name': 'ExcludeObjects', 'Value': 'LampPoint.001' }]" /workingpath:C:\Files\Dropbox /infile:Docs/BlenderTimeline.ods /outfile:Scripts/BlenderKeyframes.json

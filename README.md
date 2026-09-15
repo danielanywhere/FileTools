@@ -6,6 +6,18 @@ The current version is Windows-only, due to its use of the **System.Drawing** na
 
 <p>&nbsp;</p>
 
+## 🆕 LibreOffice Calc to Generic JSON
+
+The action ConvertCalcToJson has been added to convert a LibreOffice Calc ODS file to a general, flat JSON format. If all of the non-blank values in a column are numeric, the output property will be treated as numeric. Similarly, if all of the non-blank values in a column are boolean, the output property will be treated as boolean.
+
+<p>&nbsp;</p>
+
+## 🆕 LibreOffice Calc Blender Timeline to Blender Keyframe JSON Script
+
+The action **ConvertCalcToBlenderKeyframes** has been added to convert a LibreOffice Calc ODS file using a Blender timeline animation layout to a Blender keyframe JSON file compatible with the ImportKeyframes.py script on the GitHub project [danielanywhere/BlenderAnimationImport](https://github.com/danielanywhere/BlenderAnimationImport).
+
+<p>&nbsp;</p>
+
 ## Syntax
 
 Following is the current application syntax.
@@ -24,6 +36,7 @@ FileTools.exe /action:{ActionName}
     [/option:{OptionName[,OptionValue]}]
     [/range:{Start},{End}] [/base:{Base}]
     [/digits:{Digits}] [/count:{Count}] [/datetime:{DateTime}]
+    [/sheetname:{Name}]
     [/text:{Text}]
     [/prefix] [/suffix]
     [/properties:{NameValueArray}]
@@ -45,6 +58,18 @@ FileTools.exe /action:{ActionName}
                         property from a partial path template.
                     ClearInputFiles * - Clear the input files collection at
                         this level.
+                    ConvertCalcToBlenderKeyframes - Convert a LibreOffice Calc
+                        ODS file to a Blender keyframe JSON file compatible
+                        with the ImportKeyframes.py script on the GitHub
+                        project danielanywhere/BlenderAnimationImport.
+                        /infile, /sheetname, /outfile
+                        [
+                            "/properties:[{ 'Name':'ExcludeObjects','Value':
+                            'ObjectName1,ObjectName2,etc' }]"
+                        ]
+                    ConvertCalcToJson - Convert a LibreOffice Calc ODS file
+                        to JSON.
+                        /infile, /sheetname, /outfile
                     ConvertFromB64 - Convert a file from base-64 to binary.
                         /infile, /outfile
                     ConvertToB64 - Convert a file from binary to base-64.
@@ -357,5 +382,9 @@ filetools /wait /action:RenameFiles "/properties:[{ 'Name': 'Find', 'Value': '(?
 filetools /wait /action:FormatDirFile /infile:C:\Temp\DirAll.txt /outfile:C:\Temp\DirAll-Formatted.txt
 
 filetools /wait /recurse /action:FindFiles /input:C:\Files\Dropbox\Develop\Active "/properties:[{'Name':'Find','Value': '(?i:^[^\\.]*svg[^\\.]*)'}]"
+
+filetools /wait /action:ConvertCalcToJson /sheetname:TestSheet /workingpath:C:\Files\Dropbox /infile:MySpreadsheet.ods /outfile:ConvertedFromCalc.json
+
+filetools /wait /action:ConvertCalcToBlenderKeyframes /sheetname:Timeline "/properties:[{ 'Name': 'ExcludeObjects', 'Value': 'LampPoint.001' }]" /workingpath:C:\Files\Dropbox /infile:Docs/BlenderTimeline.ods /outfile:Scripts/BlenderKeyframes.json
 
 ```

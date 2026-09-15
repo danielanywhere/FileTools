@@ -159,6 +159,7 @@ FileTools.exe /action:{ActionName}
     [/option:{OptionName[,OptionValue]}]
     [/range:{Start},{End}] [/base:{Base}]
     [/digits:{Digits}] [/count:{Count}] [/datetime:{DateTime}]
+    [/sheetname:{Name}]
     [/text:{Text}]
     [/prefix] [/suffix]
     [/properties:{NameValueArray}]
@@ -180,6 +181,18 @@ FileTools.exe /action:{ActionName}
                         property from a partial path template.
                     ClearInputFiles * - Clear the input files collection at
                         this level.
+                    ConvertCalcToBlenderKeyframes - Convert a LibreOffice Calc
+                        ODS file to Blender a keyframe JSON file compatible
+                        with the ImportKeyframes.py script on the GitHub
+                        project danielanywhere/BlenderAnimationImport.
+                        /infile, /sheetname, /outfile
+                        [
+                            "/properties:[{ 'Name':'ExcludeObjects','Value':
+                            'ObjectName1,ObjectName2,etc' }]"
+                        ]
+                    ConvertCalcToJson - Convert a LibreOffice Calc ODS file
+                        to JSON.
+                        /infile, /sheetname, /outfile
                     ConvertFromB64 - Convert a file from base-64 to binary.
                         /infile, /outfile
                     ConvertToB64 - Convert a file from binary to base-64.
@@ -342,7 +355,7 @@ FileTools.exe /action:{ActionName}
                     action.
     /suffix     -   A flag indicating that the suffix function is active
                     for the current action.
-    /working    -   Set the working path and foldername. When this parameter
+    /workingpath-   Set the working path and foldername. When this parameter
                     is specified, all of the other parameters can use relative
                     naming.
 

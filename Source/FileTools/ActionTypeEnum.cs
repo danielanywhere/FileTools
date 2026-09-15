@@ -64,6 +64,14 @@ namespace FileTools
 		/// </summary>
 		ClearInputFiles,
 		/// <summary>
+		/// Convert a LibreOffice Calc ODS file to Blender Keyframes JSON.
+		/// </summary>
+		ConvertCalcToBlenderKeyframes,
+		/// <summary>
+		/// Convert a LibreOffice Calc ODS file to JSON.
+		/// </summary>
+		ConvertCalcToJson,
+		/// <summary>
 		/// Convert a file from base-64 to binary.
 		/// </summary>
 		ConvertFromB64,

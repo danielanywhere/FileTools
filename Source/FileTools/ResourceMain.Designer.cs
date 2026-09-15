@@ -137,8 +137,8 @@ namespace FileTools {
         ///    [/option:{OptionName[,OptionValue]}]
         ///    [/range:{Start},{End}] [/base:{Base}]
         ///    [/digits:{Digits}] [/count:{Count}] [/datetime:{DateTime}]
-        ///    [/text:{Text}]
-        ///    [/prefix]  [rest of string was truncated]&quot;;.
+        ///    [/sheetname:{Name}]
+        ///    [/tex [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string Syntax {
             get {

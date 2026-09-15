@@ -2204,6 +2204,242 @@ namespace FileTools
 		//*-----------------------------------------------------------------------*
 
 		//*-----------------------------------------------------------------------*
+		//* ConvertCalcToBlenderKeyframes																					*
+		//*-----------------------------------------------------------------------*
+		/// <summary>
+		/// Convert a LibreOffice Calc ODS file to Blender Keyframes JSON.
+		/// </summary>
+		/// <param name="item">
+		/// Reference to the file action item being fulfilled.
+		/// </param>
+		private static void ConvertCalcToBlenderKeyframes(FileActionItem item)
+		{
+			string content = "";
+			DataSet data = null;
+			NameValueItem excludeObjectsProperty = null;
+			List<string> excludedObjects = new List<string>();
+			string sheetName = "";
+			DataTable table = null;
+			string[] values = null;
+			DataView view = null;
+
+			if(item != null &&
+				CheckElements(item,
+					ActionElementEnum.InputFilename | ActionElementEnum.OutputFilename))
+			{
+				data = LibreOfficeODS.OdsReader.ReadOds(item.InputFiles[0].FullName);
+				sheetName = item.SheetName;
+				excludeObjectsProperty = item.Properties.FirstOrDefault(x =>
+					string.Equals(x.Name, "ExcludeObjects",
+						StringComparison.OrdinalIgnoreCase));
+				if(excludeObjectsProperty?.Value.Length > 0)
+				{
+					values = excludeObjectsProperty.Value.Split(new char[] { ',', ';' },
+						StringSplitOptions.RemoveEmptyEntries |
+						StringSplitOptions.TrimEntries);
+					foreach(string valueItem in values)
+					{
+						if(!excludedObjects.Exists(x =>
+							string.Equals(x, valueItem, StringComparison.OrdinalIgnoreCase)))
+						{
+							excludedObjects.Add(valueItem);
+						}
+					}
+				}
+				if(sheetName?.Length > 0)
+				{
+					table = GetTable(data, sheetName);
+					if(table == null)
+					{
+						Console.WriteLine($"Err: Sheet not found: {sheetName}");
+					}
+				}
+				else
+				{
+					table = data.Tables[0];
+				}
+				if(table != null)
+				{
+					try
+					{
+						if(excludedObjects.Count > 0)
+						{
+							foreach(string excludedItem in excludedObjects)
+							{
+								view = new DataView(table)
+								{
+									RowFilter = $"Object = '{excludedItem}'"
+								};
+								foreach(DataRowView rowItem in view)
+								{
+									rowItem.Delete();
+								}
+							}
+							table.AcceptChanges();
+						}
+						content = SerializeBlenderTimelineTable(table);
+						File.WriteAllText(
+							AbsolutePath(item.WorkingPath, item.OutputFilename), content);
+						Console.WriteLine(
+							$"File written: {Path.GetFileName(item.OutputFilename)}");
+					}
+					catch(Exception e)
+					{
+						Console.WriteLine($"Error writing file: {e.Message}");
+					}
+				}
+			}
+		}
+		//*-----------------------------------------------------------------------*
+
+		//*-----------------------------------------------------------------------*
+		//* ConvertCalcToJson																											*
+		//*-----------------------------------------------------------------------*
+		/// <summary>
+		/// Convert a LibreOffice Calc ODS file to JSON.
+		/// </summary>
+		/// <param name="item">
+		/// Reference to the file action item being fulfilled.
+		/// </param>
+		private static void ConvertCalcToJson(FileActionItem item)
+		{
+			bool bAllBoolean = false;
+			bool bAllNumeric = false;
+			bool bHasData = false;
+			string cellValue = "";
+			Dictionary<string, InferredJsonDataTypeEnum> columnTypes =
+				new Dictionary<string, InferredJsonDataTypeEnum>();
+			string content = "";
+			DataSet data = null;
+			string filename = "";
+			Dictionary<string, object> jsonRow = null;
+			List<Dictionary<string, object>> jsonRows =
+				new List<Dictionary<string, object>>();
+			string sheetName = "";
+			DataTable table = null;
+			InferredJsonDataTypeEnum targetType = InferredJsonDataTypeEnum.None;
+
+			if(item != null &&
+				item.InputFiles.Count > 0 &&
+				item.OutputFilename?.Length > 0)
+			{
+				if(CheckElements(item,
+					ActionElementEnum.InputFilename | ActionElementEnum.OutputFilename))
+				{
+					//	Input and output filenames have been provided.
+					data = LibreOfficeODS.OdsReader.ReadOds(item.InputFiles[0].FullName);
+					sheetName = item.SheetName;
+					if(sheetName?.Length > 0)
+					{
+						table = GetTable(data, sheetName);
+						if(table == null)
+						{
+							Console.WriteLine($"Err: Sheet not found: {sheetName}");
+						}
+					}
+					else
+					{
+						table = data.Tables[0];
+					}
+					if(table != null)
+					{
+						foreach(DataColumn columnItem in table.Columns)
+						{
+							bHasData = false;
+							bAllBoolean = true;
+							bAllNumeric = true;
+							foreach(DataRow rowItem in table.Rows)
+							{
+								cellValue = rowItem.Field<string>(columnItem);
+								if(!string.IsNullOrEmpty(cellValue))
+								{
+									bHasData = true;
+									if(bAllNumeric && !IsNumeric(cellValue))
+									{
+										bAllNumeric = false;
+									}
+									if(bAllBoolean &&
+										!string.Equals(cellValue, "true",
+											StringComparison.OrdinalIgnoreCase) &&
+										!string.Equals(cellValue, "false",
+											StringComparison.OrdinalIgnoreCase))
+									{
+										bAllBoolean = false;
+									}
+								}
+							}
+							if(bHasData)
+							{
+								if(bAllNumeric)
+								{
+									columnTypes[columnItem.ColumnName] =
+										InferredJsonDataTypeEnum.Numeric;
+								}
+								else if(bAllBoolean)
+								{
+									columnTypes[columnItem.ColumnName] =
+										InferredJsonDataTypeEnum.Boolean;
+								}
+								else
+								{
+									columnTypes[columnItem.ColumnName] =
+										InferredJsonDataTypeEnum.String;
+								}
+							}
+							else
+							{
+								columnTypes[columnItem.ColumnName] =
+									InferredJsonDataTypeEnum.None;
+							}
+						}
+						foreach(DataRow rowItem in table.Rows)
+						{
+							if(RowHasData(rowItem))
+							{
+								jsonRow = new Dictionary<string, object>();
+								foreach(DataColumn columnItem in table.Columns)
+								{
+									cellValue = rowItem.Field<string>(columnItem);
+									if(!string.IsNullOrEmpty(cellValue))
+									{
+										targetType = columnTypes[columnItem.ColumnName];
+										switch(targetType)
+										{
+											case InferredJsonDataTypeEnum.Boolean:
+												jsonRow[columnItem.ColumnName] = ToBool(cellValue);
+												break;
+											case InferredJsonDataTypeEnum.Numeric:
+												jsonRow[columnItem.ColumnName] = ToFloat(cellValue);
+												break;
+											case InferredJsonDataTypeEnum.String:
+												jsonRow[columnItem.ColumnName] = cellValue;
+												break;
+										}
+									}
+								}
+								jsonRows.Add(jsonRow);
+							}
+						}
+						try
+						{
+							content =
+								JsonConvert.SerializeObject(jsonRows, Formatting.Indented);
+							File.WriteAllText(
+								AbsolutePath(item.WorkingPath, item.OutputFilename), content);
+							Console.WriteLine(
+								$"File written: {Path.GetFileName(item.OutputFilename)}");
+						}
+						catch(Exception e)
+						{
+							Console.WriteLine($"Error writing file: {e.Message}");
+						}
+					}
+				}
+			}
+		}
+		//*-----------------------------------------------------------------------*
+
+		//*-----------------------------------------------------------------------*
 		//* ConvertFromB64																												*
 		//*-----------------------------------------------------------------------*
 		/// <summary>
@@ -5528,6 +5764,650 @@ namespace FileTools
 		////*-----------------------------------------------------------------------*
 
 		//*-----------------------------------------------------------------------*
+		//* SerializeBlenderTimelineTable																					*
+		//*-----------------------------------------------------------------------*
+		/// <summary>
+		/// Serialize the contents of the provided data table in the format of the
+		/// method expected by the ImportKeyframes.py script for Blender.
+		/// </summary>
+		/// <param name="table">
+		/// Reference to a data table converted from a well-formatted animation
+		/// sequence list in a spreadsheet in Excel or LibreOffice Calc.
+		/// </param>
+		/// <returns>
+		/// JSON data indicative of that used to import keyframes into Blender.
+		/// </returns>
+		private static string SerializeBlenderTimelineTable(DataTable table)
+		{
+			string[] aan = new string[]
+			{
+				"an", "a", "an", "a",
+				"a", "a", "a",
+				"a", "a", "a",
+				"a", "a", "a",
+				"a", "a"
+			};
+			BlenderSheetActionTypeEnum action =
+				BlenderSheetActionTypeEnum.None;
+			bool bError = false;
+			bool bHandled = false;
+			char[] colon = new char[] { ':' };
+			int count = 0;
+			BlenderItemReferenceItem currentItem = null;
+			string[] fields = null;
+			int index = 0;
+			BlenderItemReferenceItem item = null;
+			BlenderItemReferenceCollection itemReferences =
+				new BlenderItemReferenceCollection();
+			BlenderItemReferenceItem lastItem = new BlenderItemReferenceItem();
+			//string name = "";
+			float number = 0f;
+			string[] parameters = null;
+			string[] requiredColumns = new string[]
+			{
+				"Object", "FrameIndex", "Action", "Value",
+				"RotateX", "RotateY", "RotateZ",
+				"TranslateX", "TranslateY", "TranslateZ",
+				"ScaleX", "ScaleY", "ScaleZ",
+				"Comment", "FrameCount"
+			};
+			string result = "";
+			int rowIndex = 0;
+			BlenderFrameCollection script = new BlenderFrameCollection();
+			char[] semi = new char[] { ';' };
+			string text = "";
+
+			if(table?.Rows.Count > 0)
+			{
+				count = requiredColumns.Length;
+				for(index = 0; index < count; index++)
+				{
+					text = requiredColumns[index];
+					if(!table.Columns.Contains(text))
+					{
+						Console.WriteLine(
+							$"Excel table must contain {aan[index]} {text} column.");
+						bError = true;
+					}
+				}
+				if(!bError)
+				{
+					foreach(DataRow rowItem in table.Rows)
+					{
+						currentItem = null;
+						bHandled = false;
+						text = GetValue(rowItem, "FrameCount");
+						if(text.Length > 0)
+						{
+							//	The frame count has been specified.
+							script.Add(new BlenderFrameItem()
+							{
+								Name = BlenderKeyframeActionTypeEnum.FrameCount,
+								Value = text
+							});
+							bHandled = true;
+						}
+
+						if(!bHandled)
+						{
+							//	Create a working model.
+							currentItem = new BlenderItemReferenceItem()
+							{
+								ObjectName = GetValue(rowItem, "Object"),
+								Comment = GetValue(rowItem, "Comment"),
+								FrameIndex = GetValue(rowItem, "FrameIndex"),
+								Value = GetValue(rowItem, "Value"),
+								RotateX = GetValue(rowItem, "RotateX"),
+								RotateY = GetValue(rowItem, "RotateY"),
+								RotateZ = GetValue(rowItem, "RotateZ"),
+								TranslateX = GetValue(rowItem, "TranslateX"),
+								TranslateY = GetValue(rowItem, "TranslateY"),
+								TranslateZ = GetValue(rowItem, "TranslateZ"),
+								ScaleX = GetValue(rowItem, "ScaleX"),
+								ScaleY = GetValue(rowItem, "ScaleY"),
+								ScaleZ = GetValue(rowItem, "ScaleZ")
+							};
+							//if(excludedObjects?.Contains(currentItem.ObjectName) == true)
+							//{
+							//	if(currentItem.FrameIndex.Length > 0)
+							//	{
+							//		//	Keep the current frame index but discard all other things.
+							//		currentItem.ObjectName = "";
+							//		currentItem.Comment = "";
+							//		currentItem.Value = "";
+							//		currentItem.RotateX = "";
+							//		currentItem.RotateY = "";
+							//		currentItem.RotateZ = "";
+							//		currentItem.TranslateX = "";
+							//		currentItem.TranslateY = "";
+							//		currentItem.TranslateZ = "";
+							//		currentItem.ScaleX = "";
+							//		currentItem.ScaleY = "";
+							//		currentItem.ScaleZ = "";
+							//	}
+							//	else
+							//	{
+							//		//	Otherwise, completely discard the entry.
+							//		currentItem = null;
+							//		bHandled = true;
+							//	}
+							//}
+							//else
+							//{
+								//	Not an excluded item.
+								if(Enum.TryParse<BlenderSheetActionTypeEnum>(
+									GetValue(rowItem, "Action"), out action))
+								{
+									currentItem.ActionType = action;
+								}
+							//}
+						}
+						if(!bHandled)
+						{
+							//	Comment.
+							if(currentItem.Comment.Length > 0)
+							{
+								script.Add(new BlenderFrameItem()
+								{
+									Name = BlenderKeyframeActionTypeEnum.Comment,
+									Value = currentItem.Comment
+								});
+							}
+							//	Object name.
+							if(currentItem.ObjectName.Length == 0)
+							{
+								//	Use the name from the previously selected item.
+								item = itemReferences.LastOrDefault(x =>
+									x.ObjectName.Length > 0);
+								if(item != null)
+								{
+									currentItem.ObjectName = item.ObjectName;
+								}
+								else
+								{
+									Console.WriteLine(
+										$"Warning: Unknown name. Skipping row {rowIndex}.");
+									bHandled = true;
+								}
+							}
+						}
+						if(!bHandled)
+						{
+							//	Select an item whose name is different than last.
+							//	Select object.
+							if(currentItem.ObjectName != lastItem.ObjectName)
+							{
+								script.Add(new BlenderFrameItem()
+								{
+									Name = BlenderKeyframeActionTypeEnum.SelectObject,
+									Value = currentItem.ObjectName
+								});
+								lastItem.ObjectName = currentItem.ObjectName;
+							}
+							//	Frame index.
+							if(currentItem.FrameIndex.Length > 0)
+							{
+								if(IsNumeric(currentItem.FrameIndex))
+								{
+									if(currentItem.FrameIndex != lastItem.FrameIndex)
+									{
+										script.Add(new BlenderFrameItem()
+										{
+											Name = BlenderKeyframeActionTypeEnum.FrameIndex,
+											Value = currentItem.FrameIndex
+										});
+										lastItem.FrameIndex = currentItem.FrameIndex;
+									}
+								}
+								else
+								{
+									switch(currentItem.FrameIndex.ToLower())
+									{
+										case "next":
+											if(float.TryParse(lastItem.FrameIndex, out number))
+											{
+												lastItem.FrameIndex = currentItem.FrameIndex =
+													((int)(number + 1)).ToString();
+											}
+											else
+											{
+												lastItem.FrameIndex = currentItem.FrameIndex = "0";
+											}
+											break;
+									}
+								}
+							}
+							//	Rotate X.
+							if(currentItem.RotateX.Length > 0)
+							{
+								if(currentItem.RotateX.ToLower() == "mark")
+								{
+									item = itemReferences.LastOrDefault(x =>
+										x.ObjectName == currentItem.ObjectName &&
+										IsNumeric(x.RotateX));
+									if(item != null)
+									{
+										currentItem.RotateX = item.RotateX;
+									}
+									else
+									{
+										currentItem.RotateX = "";
+										Console.WriteLine(
+											$"Warning: RotateX mark not found on row {rowIndex}.");
+									}
+								}
+								else if(!IsNumeric(currentItem.RotateX))
+								{
+									Console.WriteLine(
+										$"Warning: RotateX invalid value on row {rowIndex}.");
+									currentItem.RotateX = "";
+								}
+							}
+							//	Rotate Y.
+							if(currentItem.RotateY.Length > 0)
+							{
+								if(currentItem.RotateY.ToLower() == "mark")
+								{
+									item = itemReferences.LastOrDefault(x =>
+										x.ObjectName == currentItem.ObjectName &&
+										IsNumeric(x.RotateY));
+									if(item != null)
+									{
+										currentItem.RotateY = item.RotateY;
+									}
+									else
+									{
+										currentItem.RotateY = "";
+										Console.WriteLine(
+											$"Warning: RotateY mark not found on row {rowIndex}.");
+									}
+								}
+								else if(!IsNumeric(currentItem.RotateY))
+								{
+									Console.WriteLine(
+										$"Warning: RotateY invalid value on row {rowIndex}.");
+									currentItem.RotateY = "";
+								}
+							}
+							//	Rotate Z.
+							if(currentItem.RotateZ.Length > 0)
+							{
+								if(currentItem.RotateZ.ToLower() == "mark")
+								{
+									item = itemReferences.LastOrDefault(x =>
+										x.ObjectName == currentItem.ObjectName &&
+										IsNumeric(x.RotateZ));
+									if(item != null)
+									{
+										currentItem.RotateZ = item.RotateZ;
+									}
+									else
+									{
+										currentItem.RotateZ = "";
+										Console.WriteLine(
+											$"Warning: RotateZ mark not found on row {rowIndex}.");
+									}
+								}
+								else if(!IsNumeric(currentItem.RotateZ))
+								{
+									Console.WriteLine(
+										$"Warning: RotateZ invalid value on row {rowIndex}.");
+									currentItem.RotateZ = "";
+								}
+							}
+							//	Blender rotate.
+							if(currentItem.RotateX.Length > 0 ||
+								currentItem.RotateY.Length > 0 ||
+								currentItem.RotateZ.Length > 0)
+							{
+								script.Add(new BlenderFrameItem()
+								{
+									Name = BlenderKeyframeActionTypeEnum.Rotate,
+									X = currentItem.RotateX,
+									Y = currentItem.RotateY,
+									Z = currentItem.RotateZ
+								});
+								bHandled = true;
+							}
+							//	Translate X.
+							if(currentItem.TranslateX.Length > 0)
+							{
+								if(currentItem.TranslateX.ToLower() == "mark")
+								{
+									item = itemReferences.LastOrDefault(x =>
+										x.ObjectName == currentItem.ObjectName &&
+										IsNumeric(x.TranslateX));
+									if(item != null)
+									{
+										currentItem.TranslateX = item.TranslateX;
+									}
+									else
+									{
+										currentItem.TranslateX = "";
+										Console.WriteLine(
+											"Warning: TranslateX mark not found on row " +
+											$"{rowIndex}.");
+									}
+								}
+								else if(IsNumeric(currentItem.TranslateX))
+								{
+									//	Convert the Excel mm value to m.
+									if(float.TryParse(currentItem.TranslateX, out number))
+									{
+										currentItem.TranslateX = (number / 1000).ToString();
+									}
+								}
+								else
+								{
+									Console.WriteLine(
+										$"Warning: TranslateX invalid value on row {rowIndex}.");
+									currentItem.TranslateX = "";
+								}
+							}
+							//	Translate Y.
+							if(currentItem.TranslateY.Length > 0)
+							{
+								if(currentItem.TranslateY.ToLower() == "mark")
+								{
+									item = itemReferences.LastOrDefault(x =>
+										x.ObjectName == currentItem.ObjectName &&
+										IsNumeric(x.TranslateY));
+									if(item != null)
+									{
+										currentItem.TranslateY = item.TranslateY;
+									}
+									else
+									{
+										currentItem.TranslateY = "";
+										Console.WriteLine(
+											"Warning: TranslateY mark not found on row " +
+											$"{rowIndex}.");
+									}
+								}
+								else if(IsNumeric(currentItem.TranslateY))
+								{
+									//	Convert the Excel mm value to m.
+									if(float.TryParse(currentItem.TranslateY, out number))
+									{
+										currentItem.TranslateY = (number / 1000).ToString();
+									}
+								}
+								else
+								{
+									Console.WriteLine(
+										$"Warning: TranslateY invalid value on row {rowIndex}.");
+									currentItem.TranslateY = "";
+								}
+							}
+							//	Translate Z.
+							if(currentItem.TranslateZ.Length > 0)
+							{
+								if(currentItem.TranslateZ.ToLower() == "mark")
+								{
+									item = itemReferences.LastOrDefault(x =>
+										x.ObjectName == currentItem.ObjectName &&
+										IsNumeric(x.TranslateZ));
+									if(item != null)
+									{
+										currentItem.TranslateZ = item.TranslateZ;
+									}
+									else
+									{
+										currentItem.TranslateZ = "";
+										Console.WriteLine(
+											"Warning: TranslateZ mark not found on row " +
+											$"{rowIndex}.");
+									}
+								}
+								else if(IsNumeric(currentItem.TranslateZ))
+								{
+									//	Convert the Excel mm value to m.
+									if(float.TryParse(currentItem.TranslateZ, out number))
+									{
+										currentItem.TranslateZ = (number / 1000).ToString();
+									}
+								}
+								else if(!IsNumeric(currentItem.TranslateZ))
+								{
+									Console.WriteLine(
+										$"Warning: TranslateZ invalid value on row {rowIndex}.");
+									currentItem.TranslateZ = "";
+								}
+							}
+							//	Blender translate.
+							if(currentItem.TranslateX.Length > 0 ||
+								currentItem.TranslateY.Length > 0 ||
+								currentItem.TranslateZ.Length > 0)
+							{
+								script.Add(new BlenderFrameItem()
+								{
+									Name = BlenderKeyframeActionTypeEnum.Translate,
+									X = currentItem.TranslateX,
+									Y = currentItem.TranslateY,
+									Z = currentItem.TranslateZ
+								});
+								bHandled = true;
+							}
+
+							//	Scale X.
+							if(currentItem.ScaleX.Length > 0)
+							{
+								if(currentItem.ScaleX.ToLower() == "mark")
+								{
+									item = itemReferences.LastOrDefault(x =>
+										x.ObjectName == currentItem.ObjectName &&
+										IsNumeric(x.ScaleX));
+									if(item != null)
+									{
+										currentItem.ScaleX = item.ScaleX;
+									}
+									else
+									{
+										currentItem.ScaleX = "";
+										Console.WriteLine(
+											$"Warning: ScaleX mark not found on row {rowIndex}.");
+									}
+								}
+								else if(!IsNumeric(currentItem.ScaleX))
+								{
+									Console.WriteLine(
+										$"Warning: ScaleX invalid value on row {rowIndex}.");
+									currentItem.ScaleX = "";
+								}
+							}
+							//	Scale Y.
+							if(currentItem.ScaleY.Length > 0)
+							{
+								if(currentItem.ScaleY.ToLower() == "mark")
+								{
+									item = itemReferences.LastOrDefault(x =>
+										x.ObjectName == currentItem.ObjectName &&
+										IsNumeric(x.ScaleY));
+									if(item != null)
+									{
+										currentItem.ScaleY = item.ScaleY;
+									}
+									else
+									{
+										currentItem.ScaleY = "";
+										Console.WriteLine(
+											$"Warning: ScaleY mark not found on row {rowIndex}.");
+									}
+								}
+								else if(!IsNumeric(currentItem.ScaleY))
+								{
+									Console.WriteLine(
+										$"Warning: ScaleY invalid value on row {rowIndex}.");
+									currentItem.ScaleY = "";
+								}
+							}
+							//	Scale Z.
+							if(currentItem.ScaleZ.Length > 0)
+							{
+								if(currentItem.ScaleZ.ToLower() == "mark")
+								{
+									item = itemReferences.LastOrDefault(x =>
+										x.ObjectName == currentItem.ObjectName &&
+										IsNumeric(x.ScaleZ));
+									if(item != null)
+									{
+										currentItem.ScaleZ = item.ScaleZ;
+									}
+									else
+									{
+										currentItem.ScaleZ = "";
+										Console.WriteLine(
+											$"Warning: ScaleZ mark not found on row {rowIndex}.");
+									}
+								}
+								else if(!IsNumeric(currentItem.ScaleZ))
+								{
+									Console.WriteLine(
+										$"Warning: ScaleZ invalid value on row {rowIndex}.");
+									currentItem.ScaleZ = "";
+								}
+							}
+							//	Blender scale.
+							if(currentItem.ScaleX.Length > 0 ||
+								currentItem.ScaleY.Length > 0 ||
+								currentItem.ScaleZ.Length > 0)
+							{
+								script.Add(new BlenderFrameItem()
+								{
+									Name = BlenderKeyframeActionTypeEnum.Scale,
+									X = currentItem.ScaleX,
+									Y = currentItem.ScaleY,
+									Z = currentItem.ScaleZ
+								});
+								bHandled = true;
+							}
+
+							//	Specialized action type.
+							if(currentItem.ActionType != BlenderSheetActionTypeEnum.None)
+							{
+								switch(currentItem.ActionType)
+								{
+									case BlenderSheetActionTypeEnum.FollowPath:
+										//	Create a previous frame index for this object's
+										//	last-known frame stop.
+										item = itemReferences.LastOrDefault(x =>
+											x.FrameIndex.Length > 0);
+										if(item != null)
+										{
+											script.Add(new BlenderFrameItem()
+											{
+												Name =
+													BlenderKeyframeActionTypeEnum.SetPreviousFrameIndex,
+												Value = item.FrameIndex
+											});
+										}
+										parameters = currentItem.Value.Split(semi,
+											StringSplitOptions.RemoveEmptyEntries |
+											StringSplitOptions.TrimEntries);
+										foreach(string parameterItem in parameters)
+										{
+											fields = parameterItem.Split(colon,
+												StringSplitOptions.RemoveEmptyEntries |
+												StringSplitOptions.TrimEntries);
+											if(fields.Length > 1)
+											{
+												switch(fields[0].ToLower())
+												{
+													case "front":
+													case "frontaxis":
+														if(fields[1].Length > 0)
+														{
+															script.Add(new BlenderFrameItem()
+															{
+																Name =
+																	BlenderKeyframeActionTypeEnum.SetFrontAxis,
+																Value = fields[1]
+															});
+															bHandled = true;
+														}
+														break;
+													case "name":
+														if(fields[1].Length > 0)
+														{
+															script.Add(new BlenderFrameItem()
+															{
+																Name =
+																	BlenderKeyframeActionTypeEnum.FollowPath,
+																Value = fields[1]
+															});
+															bHandled = true;
+														}
+														break;
+												}
+											}
+										}
+										break;
+									case BlenderSheetActionTypeEnum.SetText:
+										if(currentItem.Value.Length > 0)
+										{
+											script.Add(new BlenderFrameItem()
+											{
+												Name = BlenderKeyframeActionTypeEnum.SetText,
+												Value = currentItem.Value
+											});
+											bHandled = true;
+										}
+										break;
+									case BlenderSheetActionTypeEnum.SetVisibility:
+										if(currentItem.Value.Length > 0)
+										{
+											script.Add(new BlenderFrameItem()
+											{
+												Name = BlenderKeyframeActionTypeEnum.SetVisibility,
+												Value = currentItem.Value
+											});
+											bHandled = true;
+										}
+										break;
+									case BlenderSheetActionTypeEnum.SetVisibilityRender:
+										if(currentItem.Value.Length > 0)
+										{
+											script.Add(new BlenderFrameItem()
+											{
+												Name =
+													BlenderKeyframeActionTypeEnum.SetVisibilityRender,
+												Value = currentItem.Value
+											});
+											bHandled = true;
+										}
+										break;
+									case BlenderSheetActionTypeEnum.SetVisibilityView:
+										if(currentItem.Value.Length > 0)
+										{
+											script.Add(new BlenderFrameItem()
+											{
+												Name = BlenderKeyframeActionTypeEnum.SetVisibilityView,
+												Value = currentItem.Value
+											});
+											bHandled = true;
+										}
+										break;
+								}
+							}
+						}
+						//	Save the object if it has been handled.
+						if(currentItem != null && bHandled)
+						{
+							itemReferences.Add(currentItem);
+						}
+						rowIndex++;
+					}
+				}
+			}
+			if(script.Count > 0)
+			{
+				result = JsonConvert.SerializeObject(script, Formatting.Indented);
+			}
+			return result;
+		}
+		//*-----------------------------------------------------------------------*
+
+		//*-----------------------------------------------------------------------*
 		//* SetPropertyValue																											*
 		//*-----------------------------------------------------------------------*
 		/// <summary>
@@ -7001,6 +7881,14 @@ namespace FileTools
 				case ActionTypeEnum.ClearInputFiles:
 					ClearInputFiles(this);
 					break;
+				case ActionTypeEnum.ConvertCalcToBlenderKeyframes:
+					//	Convert a LibreOffice Calc ODS file to Blender Keyframes JSON.
+					ConvertCalcToBlenderKeyframes(this);
+					break;
+				case ActionTypeEnum.ConvertCalcToJson:
+					//	Convert the LibreOffice Calc ODS file to JSON.
+					ConvertCalcToJson(this);
+					break;
 				case ActionTypeEnum.ConvertFromB64:
 					//	Convert the file from base-64 to binary.
 					ConvertFromB64(this);
@@ -7146,6 +8034,39 @@ namespace FileTools
 				}
 				return result;
 			}
+		}
+		//*-----------------------------------------------------------------------*
+
+		//*-----------------------------------------------------------------------*
+		//*	SheetName																															*
+		//*-----------------------------------------------------------------------*
+		/// <summary>
+		/// Private member for <see cref="SheetName">SheetName</see>.
+		/// </summary>
+		private string mSheetName = "";
+		/// <summary>
+		/// Get/Set the name of the sheet to access in the open spreadsheet.
+		/// </summary>
+		/// <remarks>
+		/// This property is inheritable.
+		/// </remarks>
+		public string SheetName
+		{
+			get
+			{
+				string result = "";
+
+				if(mSheetName?.Length > 0)
+				{
+					result = mSheetName;
+				}
+				else if(mParent?.Parent != null)
+				{
+					result = mParent.Parent.SheetName;
+				}
+				return result;
+			}
+			set { mSheetName = value; }
 		}
 		//*-----------------------------------------------------------------------*
 
