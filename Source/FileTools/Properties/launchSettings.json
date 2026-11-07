@@ -2,7 +2,7 @@
   "profiles": {
     "FileTools": {
       "commandName": "Project",
-      "commandLineArgs": "/wait /action:ConvertCalcToBlenderKeyframes /sheetname:Timeline \"/properties:[{ 'Name': 'ExcludeObjects', 'Value': 'LampPoint.001' }]\" /workingpath:C:\\Files\\Dropbox\\Develop\\Projects\\ProjectionMapping\\JapaneseZenGarden /infile:Docs/BlenderTimeline.ods /outfile:Scripts/BlenderKeyframes.json"
+      "commandLineArgs": "filetools /wait /recurse /action:FindFiles /input:C:\\Files\\Dropbox \"/properties:[{'Name':'Find','Value': '(?i:\\\\.svg$)'},{'Name':'StartDate','Value':'2026-10-01'},{'Name':'AcceptDirectories','Value':'false'}]\""
     }
   }
 }

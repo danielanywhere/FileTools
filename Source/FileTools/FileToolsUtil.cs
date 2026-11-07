@@ -2240,6 +2240,12 @@ namespace FileTools
 						{
 							files.Add(file);
 						}
+						else
+						{
+							Trace.WriteLine(
+								"ResolveFilename - File or directory not found: " +
+									fullFilename, "Err");
+						}
 					}
 					else
 					{
@@ -2772,7 +2778,7 @@ namespace FileTools
 						new DateTime(year, month, day, hour, minute, second, millisecond);
 				}
 			}
-			return DateTime.MinValue;
+			return result;
 		}
 		//*-----------------------------------------------------------------------*
 

@@ -122,7 +122,7 @@
     <comment>Regular expression to extract the parts of a date expressed as MM/DD/YYYY HH:MM:SS.MMM.</comment>
   </data>
   <data name="rxDateYYYYMMDD" xml:space="preserve">
-    <value>^\s*(?&lt;year&gt;\d{4})(?&lt;month&gt;\d{2})(?&lt;day&gt;\d{2})(\.(?&lt;hour&gt;\d{2})(?&lt;minute&gt;\d{2})((?&lt;second&gt;\d{2})((?&lt;millisecond&gt;\d{3})){0,1}){0,1}){0,1}\s*$</value>
+    <value>^\s*(?&lt;year&gt;\d{4})-{0,1}(?&lt;month&gt;\d{2})-{0,1}(?&lt;day&gt;\d{2})(\.(?&lt;hour&gt;\d{2})\:{0,1}(?&lt;minute&gt;\d{2})\:{0,1}((?&lt;second&gt;\d{2})\:{0,1}((?&lt;millisecond&gt;\d{3})){0,1}){0,1}){0,1}\s*$</value>
     <comment>Regular expression to extract the parts of a date expressed as YYYYMMDD.HHMMSSMMM.</comment>
   </data>
   <data name="rxEmbeddedFieldName" xml:space="preserve">
@@ -182,7 +182,7 @@ FileTools.exe /action:{ActionName}
                     ClearInputFiles * - Clear the input files collection at
                         this level.
                     ConvertCalcToBlenderKeyframes - Convert a LibreOffice Calc
-                        ODS file to Blender a keyframe JSON file compatible
+                        ODS file to a Blender keyframe JSON file compatible
                         with the ImportKeyframes.py script on the GitHub
                         project danielanywhere/BlenderAnimationImport.
                         /infile, /sheetname, /outfile
@@ -256,7 +256,8 @@ FileTools.exe /action:{ActionName}
                     FileSaveImage * - Save the working image to the currently
                         specified OutputFile.
                     FindFiles - Find the files matching the provided pattern.
-                        Properties: 'Find'
+                        Properties: 'Find', 'StartDate', 'EndDate',
+                            'AcceptFiles', 'AcceptDirectories'
                         /input /recurse
                     ForEachFile * - Run the Actions collection of the action
                         through all of the files currently loaded in the

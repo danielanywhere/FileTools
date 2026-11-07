@@ -108,7 +108,8 @@ FileTools.exe /action:{ActionName}
                     FileSaveImage * - Save the working image to the currently
                         specified OutputFile.
                     FindFiles - Find the files matching the provided pattern.
-                        Properties: 'Find'
+                        Properties: 'Find', 'StartDate', 'EndDate',
+                            'AcceptFiles', 'AcceptDirectories'
                         /input /recurse
                     ForEachFile * - Run the Actions collection of the action
                         through all of the files currently loaded in the

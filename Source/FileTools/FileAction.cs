@@ -3496,8 +3496,13 @@ namespace FileTools
 		/// </param>
 		private static void FindFiles(FileActionItem item)
 		{
+			//DateTime endDate = DateTime.MaxValue;
 			string find = "";
-			List<FileInfo> filesMatch = null;
+			//List<FileInfo> filesMatch = null;
+			//DateTime startDate = DateTime.MinValue;
+			string text = "";
+			NameValueItem nameValueItem = null;
+			FileFindTracker tracker = new FileFindTracker();
 
 			if(item != null)
 			{
@@ -3510,8 +3515,64 @@ namespace FileTools
 					}
 					if(find.Length > 0)
 					{
-						filesMatch = new List<FileInfo>();
-						FindFilesRecursive(item.InputDir, find, item.Recurse);
+						//filesMatch = new List<FileInfo>();
+
+						tracker.Directory = item.InputDir;
+						tracker.FindPattern = find;
+						tracker.Recurse = item.Recurse;
+
+						Trace.WriteLine($" Recurse: {(item.mRecurse ? "1" : "0")}");
+						Trace.WriteLine($" Find Pattern: {find}");
+
+						nameValueItem = item.Properties.FirstOrDefault(x =>
+							string.Equals(x.Name, "acceptdirectories",
+								StringComparison.OrdinalIgnoreCase));
+						if(nameValueItem != null)
+						{
+							tracker.AcceptDirectories = ToBool(nameValueItem.Value);
+							Trace.WriteLine(
+								$" Accept directories: {tracker.AcceptDirectories}");
+						}
+
+						nameValueItem = item.Properties.FirstOrDefault(x =>
+							string.Equals(x.Name, "acceptfiles",
+								StringComparison.OrdinalIgnoreCase));
+						if(nameValueItem != null)
+						{
+							tracker.AcceptFiles = ToBool(nameValueItem.Value);
+							Trace.WriteLine(
+								$" Accept files: {tracker.AcceptFiles}");
+						}
+
+						nameValueItem = item.Properties.FirstOrDefault(x =>
+							string.Equals(x.Name, "startdate",
+								StringComparison.OrdinalIgnoreCase));
+						if(nameValueItem != null)
+						{
+							tracker.StartDate = ToDateTime(nameValueItem.Value);
+							Trace.WriteLine($" Start date: {tracker.StartDate:MM/dd/yyyy}");
+						}
+
+						nameValueItem = item.Properties.FirstOrDefault(x =>
+							string.Equals(x.Name, "enddate",
+								StringComparison.OrdinalIgnoreCase));
+						if(nameValueItem != null)
+						{
+							tracker.EndDate = ToDateTime(nameValueItem.Value);
+							Trace.WriteLine($" End date: {tracker.EndDate:MM/dd/yyyy}");
+						}
+
+						FindFilesRecursive(tracker);
+
+						if(tracker.AcceptDirectories)
+						{
+							Trace.WriteLine(
+								$"Matching directories found: {tracker.DirectoryCount}");
+						}
+						if(tracker.AcceptFiles)
+						{
+							Trace.WriteLine($"Matching files found: {tracker.FileCount}");
+						}
 					}
 					else
 					{
@@ -3532,61 +3593,66 @@ namespace FileTools
 		/// Performs a recursive file search operation based upon all of the
 		/// command parameters that have already been set.
 		/// </summary>
-		/// <param name="dir">
-		/// Reference to the directory within which the files will be found.
+		/// <param name="tracker">
+		/// Reference to the file find tracker used to search for matching files,
+		/// including properties for starting directory, the search term to apply,
+		/// whether to recurse subdirectories, and a date range to match.
 		/// </param>
-		/// <param name="find">
-		/// Regular expression pattern to find.
-		/// </param>
-		/// <param name="recurse">
-		/// Value indicating whether to recurse into sub-folders.
-		/// </param>
-		private static void FindFilesRecursive(DirectoryInfo dir,
-			string find, bool recurse)
+		private static void FindFilesRecursive(FileFindTracker tracker)
 		{
 			bool bDirectoryWritten = false;
 			DirectoryInfo[] dirs = null;
 			List<FileInfo> files = null;
 
-			if(dir != null && find?.Length > 0)
+			if(tracker?.Directory != null && tracker.FindPattern?.Length > 0)
 			{
-				if(dir.Name.ToLower().IndexOf("svg") > -1)
+				//if(dir.Name.ToLower().IndexOf("svg") > -1)
+				//{
+				//	Trace.WriteLine("Break here: FileTools.FindFilesRecursive...");
+				//}
+				if(tracker.AcceptDirectories &&
+					Regex.IsMatch(tracker.Directory.Name, tracker.FindPattern))
 				{
-					Trace.WriteLine("Break here: FileTools.FindFilesRecursive...");
-				}
-				if(Regex.IsMatch(dir.Name, find))
-				{
-					Console.WriteLine($"{dir.FullName}");
+					Trace.WriteLine($"{tracker.Directory.FullName}");
 					bDirectoryWritten = true;
+					tracker.DirectoryCount++;
 				}
-				files = dir.GetFiles().ToList();
-				foreach(FileInfo fileInfo in files)
+				if(tracker.AcceptFiles)
 				{
-					if(Regex.IsMatch(fileInfo.Name, find))
+					files = tracker.Directory.GetFiles().ToList();
+					foreach(FileInfo fileInfo in files)
 					{
-						if(!bDirectoryWritten)
+						if(Regex.IsMatch(fileInfo.Name, tracker.FindPattern) &&
+							fileInfo.LastWriteTime.CompareTo(tracker.StartDate) > 0 &&
+							(tracker.EndDate.CompareTo(DateTime.MinValue) == 0 ||
+								fileInfo.LastWriteTime.CompareTo(tracker.EndDate) < 0))
 						{
-							Console.WriteLine($"{dir.FullName}");
-							bDirectoryWritten = true;
+							if(!bDirectoryWritten)
+							{
+								Trace.WriteLine($"{tracker.Directory.FullName}");
+								bDirectoryWritten = true;
+							}
+							Trace.Write($" {fileInfo.Name.PadRight(50, '.')} ");
+							Trace.Write($"{fileInfo.LastWriteTime:yyyy-MM-dd} ");
+							Trace.WriteLine(
+								$"{fileInfo.Length.ToString().PadLeft(10, ' ')}");
+							tracker.FileCount++;
 						}
-						Console.Write($" {fileInfo.Name.PadRight(50, '.')} ");
-						Console.Write($"{fileInfo.LastWriteTime:yyyy-MM-dd} ");
-						Console.WriteLine(
-							$"{fileInfo.Length.ToString().PadLeft(10, ' ')}");
 					}
 				}
 				if(bDirectoryWritten)
 				{
 					Console.WriteLine();
 				}
-				if(recurse)
+				if(tracker.Recurse)
 				{
-					dirs = dir.GetDirectories();
+					dirs = tracker.Directory.GetDirectories();
 					if(dirs.Length > 0)
 					{
 						foreach(DirectoryInfo dirItem in dirs)
 						{
-							FindFilesRecursive(dirItem, find, recurse);
+							tracker.Directory = dirItem;
+							FindFilesRecursive(tracker);
 						}
 					}
 				}

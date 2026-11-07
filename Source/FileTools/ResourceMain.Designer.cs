@@ -70,7 +70,7 @@ namespace FileTools {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ^\s*(?&lt;year&gt;\d{4})(?&lt;month&gt;\d{2})(?&lt;day&gt;\d{2})(\.(?&lt;hour&gt;\d{2})(?&lt;minute&gt;\d{2})((?&lt;second&gt;\d{2})((?&lt;millisecond&gt;\d{3})){0,1}){0,1}){0,1}\s*$.
+        ///   Looks up a localized string similar to ^\s*(?&lt;year&gt;\d{4})-{0,1}(?&lt;month&gt;\d{2})-{0,1}(?&lt;day&gt;\d{2})(\.(?&lt;hour&gt;\d{2})\:{0,1}(?&lt;minute&gt;\d{2})\:{0,1}((?&lt;second&gt;\d{2})\:{0,1}((?&lt;millisecond&gt;\d{3})){0,1}){0,1}){0,1}\s*$.
         /// </summary>
         internal static string rxDateYYYYMMDD {
             get {
